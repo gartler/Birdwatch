@@ -15,19 +15,18 @@ class FetchData extends Component {
 
     fetch(url)
      .then(response => response.json())
-     .then(data => this.setState({ data }));
+     .then(data => this.setState({ data },()=> this.initGraph()));
   }
 
   componentDidMount() {
    this.fetchData()
-   this.initGraph()
   }
   initGraph() {
     // const width = 640;
     // const height = 480;
     // set the dimensions and margins of the graph
     var margin = {top: 10, right: 30, bottom: 30, left: 60},
-        width = 460 - margin.left - margin.right,
+        width = 1760 - margin.left - margin.right,
         height = 400 - margin.top - margin.bottom;
     
     // append the svg object to the body of the page
@@ -42,7 +41,7 @@ class FetchData extends Component {
     const data = this.state.data
 // Add X axis --> it is a date format
 var x = d3.scaleLinear()
-.domain(d3.extent(data, function(d) { return d.date; }))
+.domain([d3.min(data, function(d) { return +d.timestamp }), d3.max(data, function(d) { return +d.timestamp; })])
 .range([ 0, width ]);
 svgCanvas.append("g")
 .attr("transform", "translate(0," + height + ")")
@@ -50,7 +49,7 @@ svgCanvas.append("g")
 
 // Add Y axis
 var y = d3.scaleLinear()
-.domain([0, d3.max(data, function(d) { return +d.value; })])
+.domain([d3.min(data, function(d) { return +d.value; }), d3.max(data, function(d) { return +d.value; })])
 .range([ height, 0 ]);
 svgCanvas.append("g")
 .call(d3.axisLeft(y));
@@ -62,7 +61,7 @@ svgCanvas.append("path")
 .attr("stroke", "steelblue")
 .attr("stroke-width", 1.5)
 .attr("d", d3.line()
-  .x(function(d) { return x(d.date) })
+  .x(function(d) { return x(d.timestamp) })
   .y(function(d) { return y(d.value) })
   )
 
